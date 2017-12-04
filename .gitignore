@@ -203,3 +203,5 @@ ModelManifest.xml
 /tests/del1.txt
 /.gitconfig
 /del1.txt
+*.bak
+.vscode
