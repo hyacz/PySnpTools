@@ -317,7 +317,7 @@ class IntRangeSet(object):
 
         '''
         for (first, stop) in self.ranges():
-            for i in xrange(first,stop):
+            for i in range(first,stop):
                 yield i
 
     def clear(self):
@@ -522,7 +522,7 @@ class IntRangeSet(object):
         if self.isempty:
             return ""
 
-        from cStringIO import StringIO
+        from io import StringIO
         fp = StringIO()
 
         for index, (start, stop) in enumerate(self.ranges()):
@@ -593,10 +593,10 @@ class IntRangeSet(object):
         assert str(IntRangeSet(7)) == "IntRangeSet('7')"
         assert str(IntRangeSet((7,8))) == "IntRangeSet('7')"
         assert str(IntRangeSet((7,11))) == "IntRangeSet('7:11')"
-        assert str(IntRangeSet(xrange(7,11))) == "IntRangeSet('7:11')"
+        assert str(IntRangeSet(range(7,11))) == "IntRangeSet('7:11')"
         assert str(IntRangeSet(np.s_[7:11])) == "IntRangeSet('7:11')"
         assert str(IntRangeSet(np.s_[7:11:2])) == "IntRangeSet('7,9')"
-        assert str(IntRangeSet(xrange(7,11,2))) == "IntRangeSet('7,9')"
+        assert str(IntRangeSet(range(7,11,2))) == "IntRangeSet('7,9')"
         assert str(IntRangeSet(None)) == "IntRangeSet('')"
         assert str(IntRangeSet()) == "IntRangeSet('')"
         assert [e for e in IntRangeSet("-10:-4,-3")] == [-10,-9,-8,-7,-6,-5,-3]
@@ -633,8 +633,8 @@ class IntRangeSet(object):
         assert IntRangeSet("-10:-4,-3,100") not in int_range_set5
         assert [-11] not in int_range_set5
         assert [-10] in int_range_set5
-        assert xrange(-10,-6) in int_range_set5
-        assert xrange(-10,-3) not in int_range_set5
+        assert range(-10,-6) in int_range_set5
+        assert range(-10,-3) not in int_range_set5
         assert [-10,-9,-8,-7,-3] in int_range_set5
         assert [-10,-9,-8,-7,-3,-100] not in int_range_set5
 
@@ -1019,7 +1019,7 @@ class IntRangeSet(object):
             else:
                 assert key < 0
                 key = -key-1
-                for start_index in xrange(len(self._start_items)):
+                for start_index in range(len(self._start_items)):
                     start = self._start_items[-1-start_index]
                     length = self._start_to_length[start]
                     if key < length:
@@ -1036,7 +1036,7 @@ class IntRangeSet(object):
             if step_index == 1:
                 return self & (self[start_index],self[stop_index-1]+1)
             else:
-                return IntRangeSet(self[index] for index in xrange(*key.indices(lenx)))
+                return IntRangeSet(self[index] for index in range(*key.indices(lenx)))
         else:
             start_and_stop_generator = (self._two_index(start_index,stop_index) for start_index,stop_index in IntRangeSet._static_ranges(key))
             return self.intersection(start_and_stop_generator)
@@ -1552,7 +1552,7 @@ class IntRangeSet(object):
             else:
                 assert key < 0
                 key = -key-1
-                for start_index in xrange(len(self._start_items)):
+                for start_index in range(len(self._start_items)):
                     start = self._start_items[-1-start_index]
                     length = self._start_to_length[start]
                     if key < length:
@@ -1570,7 +1570,7 @@ class IntRangeSet(object):
             if step == 1:
                 self -= (self[start],self[stop-1]+1)
             else:
-                self -= (self[index] for index in xrange(*key.indices(lenx)))
+                self -= (self[index] for index in range(*key.indices(lenx)))
         else:
             start_and_stop_generator = (self._two_index(start_index,stop_index) for start_index,stop_index in IntRangeSet._static_ranges(key))
             self -= (start_and_stop_generator)
@@ -1598,7 +1598,7 @@ class IntRangeSet(object):
         '''
         for start in reversed(self._start_items):
             length = self._start_to_length[start]
-            for item in xrange(start+length-1, start-1, -1):
+            for item in range(start+length-1, start-1, -1):
                 yield item
 
     @staticmethod
@@ -1606,13 +1606,13 @@ class IntRangeSet(object):
     def _static_ranges(*iterables):
         iter = IntRangeSet._inner_static_ranges(*iterables)
         try:
-            start0,stop0 = iter.next()
+            start0,stop0 = next(iter)
             assert start0 < stop0, "Invalid range. Start " + str(start0) + " must be less than stop " + str(stop0) + "."
         except StopIteration:
             return
         while True:
             try:
-                start1,stop1 = iter.next()
+                start1,stop1 = next(iter)
                 assert start1 < stop1, "Invalid range. Start " + str(start1) + " must be less than stop " + str(stop1) + "."
             except StopIteration:
                 yield start0,stop0
@@ -1631,7 +1631,7 @@ class IntRangeSet(object):
             if isinstance(iterable, numbers.Integral):
                 yield iterable,iterable+1
             elif isinstance(iterable,tuple):
-                assert len(iterable)==2 and isinstance(iterable[0], numbers.Integral) and isinstance(iterable[1],(int,long)), "Tuples must contain exactly two int elements that represent the start (inclusive) and stop (exclusive) elements of a range."
+                assert len(iterable)==2 and isinstance(iterable[0], numbers.Integral) and isinstance(iterable[1],int), "Tuples must contain exactly two int elements that represent the start (inclusive) and stop (exclusive) elements of a range."
                 yield iterable[0],iterable[1]
             elif isinstance(iterable,slice):
                 start = iterable.start
@@ -1641,7 +1641,7 @@ class IntRangeSet(object):
                 if step == 1:
                     yield start,stop
                 else:
-                    for start in xrange(start,stop,step):
+                    for start in range(start,stop,step):
                         yield start, start+1
             elif iterable is None:
                 pass
@@ -1734,7 +1734,7 @@ class IntRangeSet(object):
             return start, length, index, element < start+length # we already know element is greater than start
 
     def _delete_ranges(self,start_range_index,stop_range_index):
-        for range_index in xrange(start_range_index,stop_range_index):
+        for range_index in range(start_range_index,stop_range_index):
             del self._start_to_length[self._start_items[range_index]]
         del self._start_items[start_range_index:stop_range_index]
 
